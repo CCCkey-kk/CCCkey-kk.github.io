@@ -1,0 +1,1851 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <title>🎞️ 重生之我要靠做短剧走上人生巅峰</title>
+    <style>
+        /* ============================================================
+                   胶片电影美学 · 黑紫/黑灰质感 + 胶卷边框
+                   ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0812;
+            --bg-card: rgba(14, 10, 28, 0.88);
+            --film-black: #0b0915;
+            --film-purple: #2a1f3d;
+            --film-orange: #c05a2b;
+            --film-red: #a8322a;
+            --film-blue: #2f5a8a;
+            --gold: #e8b84b;
+            --gold-glow: #e8b84b33;
+            --text-primary: #f0ece4;
+            --text-secondary: #b8b0a4;
+            --text-muted: #6a6270;
+            --border-film: linear-gradient(135deg, #3a2a4a, #a8322a, #c05a2b, #2f5a8a, #3a2a4a);
+            --shadow-film: 0 0 40px rgba(168, 50, 42, 0.08);
+            --radius-film: 24px 6px 24px 6px;
+            --transition: 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            --inner-bg: rgba(255, 255, 255, 0.025);
+            --border-width: 15px;
+            --inner-offset: 18px;
+        }
+
+        html,
+        body {
+            height: 100%;
+            font-family: var(--font);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+        }
+
+        /* ===== 胶片纹理背景 ===== */
+        .bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background:
+                radial-gradient(ellipse at 30% 40%, rgba(42, 31, 61, 0.6) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 60%, rgba(47, 90, 138, 0.25) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 80%, rgba(192, 90, 43, 0.15) 0%, transparent 40%),
+                var(--bg-primary);
+            overflow: hidden;
+        }
+        .bg-canvas::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 255, 255, 0.012) 2px, rgba(255, 255, 255, 0.012) 4px),
+                repeating-linear-gradient(90deg, transparent, transparent 3px, rgba(255, 255, 255, 0.008) 3px, rgba(255, 255, 255, 0.008) 6px);
+            pointer-events: none;
+        }
+
+        /* ===== 主容器 ===== */
+        #app {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 10px 14px 14px 14px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ===== 胶卷边框容器 ===== */
+        .film-frame-wrapper {
+            position: relative;
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-radius: var(--radius-film);
+        }
+
+        .film-frame {
+            position: relative;
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-card);
+            border: var(--border-width) solid transparent;
+            border-image: var(--border-film) 1;
+            border-radius: 0;
+            box-shadow: var(--shadow-film), inset 0 0 60px rgba(0, 0, 0, 0.4);
+            padding: 12px 14px 12px 14px;
+            overflow: hidden;
+            transition: border-image 0.3s, box-shadow 0.3s;
+        }
+
+        /* 齿孔 */
+        .film-frame .sprocket-holes {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 3;
+            overflow: hidden;
+            border-radius: 0;
+        }
+        .film-frame .sprocket-holes .hole-strip {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: calc(var(--border-width) - 2px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2px;
+            gap: 0;
+            overflow: hidden;
+        }
+        .film-frame .sprocket-holes .hole-strip-top { top: 2px; }
+        .film-frame .sprocket-holes .hole-strip-bottom { bottom: 2px; }
+        .film-frame .sprocket-holes .hole {
+            flex-shrink: 0;
+            width: 12px;
+            height: 100%;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 1px;
+            box-shadow: inset 0 0 4px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        .film-frame .sprocket-holes .hole::after {
+            content: '';
+            position: absolute;
+            top: 1px;
+            left: 1px;
+            right: 1px;
+            bottom: 1px;
+            background: var(--bg-primary);
+            border-radius: 1px;
+            opacity: 0.85;
+        }
+        .film-frame .sprocket-holes .hole-strip {
+            background: rgba(0,0,0,0.3);
+            border-top: 1px solid rgba(255,255,255,0.06);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .film-frame .sprocket-holes .hole-strip-bottom {
+            border-top: 1px solid rgba(255,255,255,0.06);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        /* 内层背景 */
+        .film-frame .inner-bg {
+            position: absolute;
+            top: calc(var(--border-width) + var(--inner-offset));
+            left: calc(var(--border-width) + var(--inner-offset));
+            right: calc(var(--border-width) + var(--inner-offset));
+            bottom: calc(var(--border-width) + var(--inner-offset));
+            background: var(--inner-bg);
+            border-radius: 6px;
+            pointer-events: none;
+            z-index: 0;
+            border: 1px solid rgba(255,255,255,0.03);
+            box-shadow: inset 0 0 60px rgba(255,255,255,0.008);
+        }
+
+        /* 滑动彩色条 */
+        .film-frame .film-top,
+        .film-frame .film-bottom {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 6px;
+            pointer-events: none;
+            z-index: 4;
+            overflow: hidden;
+            border-radius: 2px;
+        }
+        .film-frame .film-top { top: calc(var(--border-width) + 1px); }
+        .film-frame .film-bottom { bottom: calc(var(--border-width) + 1px); }
+        .film-frame .film-slider {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 200%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            transform: translateX(0%);
+            transition: transform 0.01s linear;
+        }
+        .film-frame .film-slider .color-strip {
+            width: 100%;
+            height: 100%;
+            flex-shrink: 0;
+            background: repeating-linear-gradient(90deg,
+                    rgba(168,50,42,0.4) 0px, rgba(168,50,42,0.4) 4px,
+                    rgba(192,90,43,0.4) 4px, rgba(192,90,43,0.4) 8px,
+                    rgba(47,90,138,0.4) 8px, rgba(47,90,138,0.4) 12px,
+                    rgba(42,31,61,0.4) 12px, rgba(42,31,61,0.4) 16px);
+            border-radius: 2px;
+        }
+        .film-frame .film-slider-bottom .color-strip {
+            background: repeating-linear-gradient(90deg,
+                    rgba(42,31,61,0.4) 0px, rgba(42,31,61,0.4) 4px,
+                    rgba(47,90,138,0.4) 4px, rgba(47,90,138,0.4) 8px,
+                    rgba(192,90,43,0.4) 8px, rgba(192,90,43,0.4) 12px,
+                    rgba(168,50,42,0.4) 12px, rgba(168,50,42,0.4) 16px);
+        }
+        .film-frame.slide .film-slider {
+            animation: filmSlide 0.6s ease-in-out forwards;
+        }
+        @keyframes filmSlide {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* 内容区 */
+        .film-frame .card-scroll {
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            padding: 4px 2px;
+            min-height: 0;
+            max-height: 100%;
+            width: 100%;
+            justify-content: center;
+        }
+        .film-frame .card-scroll.ending-scroll {
+            justify-content: flex-start;
+        }
+
+        .card-scroll::-webkit-scrollbar { width: 3px; }
+        .card-scroll::-webkit-scrollbar-track { background: transparent; }
+        .card-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+
+        /* ===== 状态栏 ===== */
+        .status-bar {
+            flex-shrink: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 16px;
+            margin-bottom: 10px;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 30px 6px 30px 6px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            padding: 3px 12px;
+            border-radius: 30px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+        .status-item .icon { font-size: 1rem; }
+        .status-item .label {
+            color: var(--text-muted);
+            font-weight: 400;
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .status-item .value {
+            font-size: 1.05rem;
+            font-weight: 700;
+            min-width: 2rem;
+            text-align: center;
+        }
+        .status-item .value.money { color: var(--gold); }
+        .status-item .value.influence { color: #7abfff; }
+
+        /* ===== 进度条 ===== */
+        .progress-wrap {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 0 2px;
+        }
+        .progress-track {
+            flex: 1;
+            height: 4px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, var(--film-orange), var(--gold), var(--film-red));
+            transition: width 0.6s ease;
+            box-shadow: 0 0 12px rgba(232,184,75,0.15);
+        }
+
+        /* ===== 内容样式 ===== */
+        .narrative {
+            flex-shrink: 0;
+            text-align: center;
+            padding: 0 4px;
+        }
+        .narrative .phase-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--gold);
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .narrative .phase-desc {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            margin-top: 2px;
+            max-width: 520px;
+            margin-left: auto;
+            margin-right: auto;
+            word-break: break-word;
+        }
+        .narrative .phase-desc strong { color: var(--text-primary); }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex-shrink: 0;
+            padding-bottom: 4px;
+            margin-top: 16px;
+            max-width: 520px;
+            margin-left: auto;
+            margin-right: auto;
+            width: 100%;
+        }
+        .option-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 20px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 20px 4px 20px 4px;
+            cursor: pointer;
+            transition: all var(--transition);
+            text-align: left;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-weight: 500;
+            line-height: 1.3;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            position: relative;
+            min-height: 50px;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+        }
+        .option-btn:active { transform: scale(0.97); }
+        .option-btn:hover {
+            background: rgba(255,255,255,0.07);
+            border-color: rgba(232,184,75,0.3);
+            box-shadow: 0 0 30px rgba(232,184,75,0.04);
+        }
+        .option-btn .opt-label { flex: 1; font-weight: 500; }
+        .option-btn .opt-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .option-btn .opt-meta .cost { color: #ff6b5a; }
+        .option-btn .opt-meta .gain { color: #5cdb8a; }
+        .option-btn .opt-meta .cost.gold { color: var(--gold); }
+        .option-btn .opt-icon { font-size: 1.2rem; flex-shrink: 0; }
+        .option-btn.selected {
+            border-color: var(--gold);
+            background: rgba(232,184,75,0.08);
+            box-shadow: 0 0 30px rgba(232,184,75,0.06), inset 0 0 30px rgba(232,184,75,0.02);
+        }
+        .option-btn .opt-hint {
+            font-size: 0.55rem;
+            color: var(--text-muted);
+            background: rgba(255,255,255,0.04);
+            padding: 2px 10px;
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.04);
+            margin-left: 4px;
+            white-space: nowrap;
+        }
+        .options .option-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
+            margin: 2px 0;
+        }
+
+        /* ===== 欢迎/起名页 ===== */
+        .start-screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            gap: 16px;
+            padding: 8px 0;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+        }
+        .start-screen .logo {
+            font-size: 3.6rem;
+            line-height: 1;
+            margin-bottom: 2px;
+            animation: float 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 30px rgba(232,184,75,0.15));
+        }
+        @keyframes float {
+            0%,100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+        .start-screen h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--gold), var(--film-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1px;
+        }
+        .start-screen .sub {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            max-width: 420px;
+            line-height: 1.7;
+        }
+        .start-screen .sub strong { color: var(--text-primary); -webkit-text-fill-color: var(--text-primary); }
+        .start-screen .guide-box {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px 4px 16px 4px;
+            padding: 16px 24px;
+            margin-top: 4px;
+            max-width: 400px;
+            backdrop-filter: blur(4px);
+        }
+        .start-screen .guide-box .key { color: var(--gold); font-weight: 600; }
+
+        .name-input-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            max-width: 380px;
+            margin-top: 4px;
+        }
+        .name-input-wrap .input-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 30px 6px 30px 6px;
+            padding: 4px 4px 4px 18px;
+            transition: border-color 0.3s;
+        }
+        .name-input-wrap .input-group:focus-within {
+            border-color: var(--gold);
+            box-shadow: 0 0 30px rgba(232,184,75,0.06);
+        }
+        .name-input-wrap .input-group input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            font-weight: 500;
+            padding: 12px 0;
+            min-width: 0;
+            font-family: var(--font);
+        }
+        .name-input-wrap .input-group input::placeholder {
+            color: var(--text-muted);
+            font-weight: 400;
+            font-size: 0.95rem;
+        }
+        .name-input-wrap .input-group .char-count {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            padding-right: 12px;
+            flex-shrink: 0;
+        }
+        .name-input-wrap .input-group .char-count.over { color: #ff6b5a; }
+        .company-name-display {
+            font-size: 1.1rem;
+            color: var(--gold);
+            font-weight: 600;
+            margin-top: 4px;
+            letter-spacing: 1px;
+            min-height: 2rem;
+            padding: 4px 16px;
+            background: rgba(232,184,75,0.06);
+            border-radius: 30px;
+            border: 1px solid rgba(232,184,75,0.1);
+        }
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 40px;
+            background: linear-gradient(135deg, var(--gold), var(--film-orange));
+            color: #0b0915;
+            font-weight: 700;
+            font-size: 1rem;
+            border: none;
+            border-radius: 40px 6px 40px 6px;
+            cursor: pointer;
+            transition: all var(--transition);
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            box-shadow: 0 4px 30px rgba(232,184,75,0.15);
+            font-family: var(--font);
+        }
+        .btn-primary:active { transform: scale(0.95); }
+        .btn-primary:hover {
+            box-shadow: 0 6px 40px rgba(232,184,75,0.25);
+            transform: translateY(-2px);
+        }
+        .btn-primary:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* ================================================================
+           结局页 - 可滚动，从顶部开始排列
+           ================================================================ */
+        .ending-screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 21px 19px 28px 19px;
+            overflow-y: auto;
+            position: relative;
+            z-index: 1;
+            min-height: 0;
+            max-height: 100%;
+            width: 100%;
+            box-sizing: border-box;
+            max-width: calc(100% - 0px);
+            margin: 0 auto;
+            justify-content: flex-start;
+        }
+
+        .ending-screen * {
+            max-width: 100%;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            box-sizing: border-box;
+        }
+
+        .ending-screen .ending-badge { text-align: center; font-size: 2.4rem; margin-bottom: 0px; flex-shrink: 0; }
+        .ending-screen .ending-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-align: center;
+            line-height: 1.3;
+            flex-shrink: 0;
+        }
+        .ending-screen .ending-title.gold { color: var(--gold); }
+        .ending-screen .ending-title.red { color: #ff6b5a; }
+        .ending-screen .ending-title.orange { color: var(--film-orange); }
+        .ending-screen .ending-title.gray { color: var(--text-muted); }
+        .ending-screen .ending-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            text-align: center;
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 0 4px;
+            flex-shrink: 0;
+        }
+        .ending-screen .ending-desc .highlight { color: var(--gold); font-weight: 600; }
+
+        /* --- 不可展开的卡片 (成就) --- */
+        .ending-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px 4px 16px 4px;
+            padding: 12px 16px;
+            margin: 2px 0;
+            backdrop-filter: blur(4px);
+            width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .ending-card-header {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .ending-card-body {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            word-break: break-word;
+        }
+
+        /* --- 可展开卡片 (剧情简介、市场反响、政府信息) --- */
+        .expandable-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px 4px 16px 4px;
+            padding: 12px 16px;
+            margin: 2px 0 4px 0;
+            cursor: pointer;
+            transition: all var(--transition);
+            backdrop-filter: blur(4px);
+            width: 100%;
+            box-sizing: border-box;
+            flex-shrink: 0;
+        }
+        .expandable-card:hover {
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(255,255,255,0.10);
+        }
+        .expandable-card .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .expandable-card .card-header .title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--gold);
+        }
+        .expandable-card .card-header .toggle {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            background: rgba(255,255,255,0.05);
+            padding: 2px 14px;
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.06);
+            transition: all var(--transition);
+            user-select: none;
+            flex-shrink: 0;
+        }
+        .expandable-card .card-header .toggle:hover {
+            background: rgba(255,255,255,0.10);
+            color: var(--text-primary);
+        }
+        .expandable-card .card-body {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            display: none;
+            word-break: break-word;
+        }
+        .expandable-card .card-body.open { display: block; }
+        .expandable-card .card-body .tag-group {
+            margin-top: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .expandable-card .card-body .tag {
+            display: inline-block;
+            background: rgba(232,184,75,0.12);
+            color: var(--gold);
+            padding: 1px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            border: 1px solid rgba(232,184,75,0.1);
+            white-space: nowrap;
+        }
+        .expandable-card .click-hint {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+            opacity: 0.6;
+            text-align: center;
+        }
+
+        .ending-stats {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            flex-wrap: wrap;
+            padding: 4px 0;
+            flex-shrink: 0;
+        }
+        .ending-stats .stat { text-align: center; }
+        .ending-stats .stat .num { font-size: 1.4rem; font-weight: 800; }
+        .ending-stats .stat .num.gold { color: var(--gold); }
+        .ending-stats .stat .num.blue { color: #7abfff; }
+        .ending-stats .stat .lbl {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .btn-restart {
+            align-self: center;
+            margin-top: 4px;
+            padding: 10px 32px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: var(--text-primary);
+            border-radius: 40px 6px 40px 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all var(--transition);
+            touch-action: manipulation;
+            backdrop-filter: blur(4px);
+            font-family: var(--font);
+            flex-shrink: 0;
+        }
+        .btn-restart:active { transform: scale(0.95); }
+        .btn-restart:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: var(--gold);
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 480px) {
+            #app { padding: 6px 8px 8px 8px; }
+            :root {
+                --border-width: 10px;
+                --inner-offset: 14px;
+            }
+            .film-frame { padding: 8px 10px 8px 10px; border-width: var(--border-width); }
+            .film-frame .inner-bg {
+                top: calc(var(--border-width) + var(--inner-offset));
+                left: calc(var(--border-width) + var(--inner-offset));
+                right: calc(var(--border-width) + var(--inner-offset));
+                bottom: calc(var(--border-width) + var(--inner-offset));
+            }
+            .film-frame .film-top { top: calc(var(--border-width) + 1px); }
+            .film-frame .film-bottom { bottom: calc(var(--border-width) + 1px); }
+            .film-frame .sprocket-holes .hole-strip { height: calc(var(--border-width) - 2px); }
+            .film-frame .sprocket-holes .hole { width: 8px; }
+            .film-frame .film-top, .film-frame .film-bottom { height: 4px; }
+
+            .ending-screen {
+                padding: 16px 14px 20px 14px;
+            }
+
+            .status-bar { padding: 4px 10px; flex-wrap: nowrap; gap: 2px; border-radius: 20px 4px 20px 4px; }
+            .status-item { font-size: 0.65rem; padding: 2px 8px; }
+            .status-item .value { font-size: 0.9rem; min-width: 1.6rem; }
+            .narrative .phase-title { font-size: 1rem; }
+            .narrative .phase-desc { font-size: 0.8rem; }
+            .option-btn { padding: 10px 14px; font-size: 0.78rem; min-height: 42px; border-radius: 16px 3px 16px 3px; }
+            .option-btn .opt-meta { font-size: 0.6rem; gap: 6px; }
+            .option-btn .opt-icon { font-size: 1rem; }
+            .option-btn .opt-hint { font-size: 0.5rem; padding: 1px 6px; }
+            .start-screen h1 { font-size: 1.3rem; }
+            .start-screen .logo { font-size: 2.6rem; }
+            .btn-primary { padding: 10px 24px; font-size: 0.9rem; }
+            .ending-screen .ending-title { font-size: 1.2rem; }
+            .ending-screen .ending-desc { font-size: 0.8rem; }
+            .ending-card { padding: 10px 12px; }
+            .ending-card-header { font-size: 0.9rem; }
+            .ending-card-body { font-size: 0.78rem; }
+            .expandable-card { padding: 10px 12px; }
+            .expandable-card .card-header .title { font-size: 0.85rem; }
+            .expandable-card .card-body { font-size: 0.78rem; }
+            .options { max-width: 100%; }
+            .narrative .phase-desc { max-width: 100%; }
+            .name-input-wrap { max-width: 100%; }
+            .name-input-wrap .input-group { padding: 2px 2px 2px 14px; }
+            .name-input-wrap .input-group input { font-size: 0.95rem; padding: 10px 0; }
+            .start-screen .guide-box { padding: 12px 16px; }
+            .btn-restart { font-size: 0.8rem; padding: 8px 24px; }
+        }
+        @media (max-width: 380px) {
+            :root {
+                --border-width: 8px;
+                --inner-offset: 10px;
+            }
+            .film-frame { padding: 6px 6px 6px 6px; border-width: var(--border-width); }
+            .film-frame .inner-bg {
+                top: calc(var(--border-width) + var(--inner-offset));
+                left: calc(var(--border-width) + var(--inner-offset));
+                right: calc(var(--border-width) + var(--inner-offset));
+                bottom: calc(var(--border-width) + var(--inner-offset));
+            }
+            .film-frame .film-top { top: calc(var(--border-width) + 1px); }
+            .film-frame .film-bottom { bottom: calc(var(--border-width) + 1px); }
+            .film-frame .sprocket-holes .hole-strip { height: calc(var(--border-width) - 2px); }
+            .film-frame .sprocket-holes .hole { width: 6px; }
+
+            .ending-screen {
+                padding: 12px 12px 16px 12px;
+            }
+
+            .option-btn { padding: 8px 10px; font-size: 0.7rem; min-height: 36px; gap: 4px; }
+            .option-btn .opt-meta { font-size: 0.5rem; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+            .status-item .label { display: none; }
+            .narrative .phase-title { font-size: 0.85rem; }
+            .narrative .phase-desc { font-size: 0.72rem; }
+            .name-input-wrap .input-group input { font-size: 0.85rem; padding: 8px 0; }
+            .start-screen .guide-box { padding: 10px 12px; font-size: 0.8rem; }
+            .btn-restart { font-size: 0.7rem; padding: 6px 18px; }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.45s ease forwards;
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(12px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .stagger>* {
+            animation: fadeIn 0.4s ease forwards;
+            opacity: 0;
+        }
+        .stagger>*:nth-child(1) { animation-delay: 0.04s; }
+        .stagger>*:nth-child(2) { animation-delay: 0.08s; }
+        .stagger>*:nth-child(3) { animation-delay: 0.12s; }
+        .stagger>*:nth-child(4) { animation-delay: 0.16s; }
+        .stagger>*:nth-child(5) { animation-delay: 0.20s; }
+        .mt-1 { margin-top: 4px; }
+        .mb-1 { margin-bottom: 4px; }
+        .text-center { text-align: center; }
+    </style>
+</head>
+<body>
+
+    <div class="bg-canvas" aria-hidden="true"></div>
+
+    <div id="app">
+        <!-- 状态栏 -->
+        <div class="status-bar" id="statusBar">
+            <div class="status-item">
+                <span class="icon">💰</span>
+                <span class="label">资金</span>
+                <span class="value money" id="moneyDisplay">100</span>
+            </div>
+            <div class="status-item">
+                <span class="icon">📈</span>
+                <span class="label">影响力</span>
+                <span class="value influence" id="influenceDisplay">0</span>
+            </div>
+            <div class="status-item" style="border-left:1px solid rgba(255,255,255,0.06);padding-left:8px;">
+                <span class="icon">🎞️</span>
+                <span class="label" style="font-size:0.55rem;" id="phaseLabel">筹备</span>
+            </div>
+        </div>
+
+        <!-- 进度条 -->
+        <div class="progress-wrap">
+            <div class="progress-track">
+                <div class="progress-fill" id="progressFill" style="width:0%;"></div>
+            </div>
+        </div>
+
+        <!-- 胶卷边框容器 -->
+        <div class="film-frame-wrapper">
+            <div class="film-frame" id="filmFrame">
+                <!-- 方形镂空齿孔 -->
+                <div class="sprocket-holes" id="sprocketHoles">
+                    <div class="hole-strip hole-strip-top" id="holeStripTop"></div>
+                    <div class="hole-strip hole-strip-bottom" id="holeStripBottom"></div>
+                </div>
+
+                <div class="inner-bg"></div>
+
+                <!-- 上下滑动彩色条 -->
+                <div class="film-top" id="filmTop">
+                    <div class="film-slider" id="filmSliderTop"><div class="color-strip"></div></div>
+                </div>
+                <div class="film-bottom" id="filmBottom">
+                    <div class="film-slider film-slider-bottom" id="filmSliderBottom"><div class="color-strip"></div></div>
+                </div>
+
+                <div class="card-scroll" id="cardScroll">
+                    <div id="gameContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================================================================
+        //  生成齿孔
+        // ================================================================
+
+        function generateHoles() {
+            const topStrip = document.getElementById('holeStripTop');
+            const bottomStrip = document.getElementById('holeStripBottom');
+            if (!topStrip || !bottomStrip) return;
+            const holeCount = 32;
+            let topHtml = '', bottomHtml = '';
+            for (let i = 0; i < holeCount; i++) {
+                topHtml += `<div class="hole"></div>`;
+                bottomHtml += `<div class="hole"></div>`;
+            }
+            topStrip.innerHTML = topHtml;
+            bottomStrip.innerHTML = bottomHtml;
+        }
+
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(generateHoles, 200);
+        });
+
+        // ================================================================
+        //  游戏数据 · 完整分支结构
+        // ================================================================
+
+        const QUESTIONS = {
+            q_name: {
+                id: 'q_name',
+                title: '🏢 为公司起名',
+                desc: '你的影视公司需要一个响亮的名字，<br />它将伴随你征战海外市场！',
+                isNameStage: true,
+                progress: 3
+            },
+            q2: {
+                id: 'q2',
+                title: '📋 选题材',
+                desc: '请先确定你的制作方向……',
+                progress: 10,
+                options: [
+                    { label: '科幻、奇幻', cost: -10, influence: 20, next: 'q3' },
+                    { label: '现代都市', cost: -5, influence: 15, next: 'q13' }
+                ]
+            },
+            q3: {
+                id: 'q3',
+                title: '📖 剧本选择',
+                desc: '你需要一个有价值的剧本来开始你的项目，你选择……',
+                progress: 20,
+                options: [
+                    { label: '知名作家的小说作品改编', cost: -15, influence: 20, next: 'q4' },
+                    { label: '国产短剧改编', cost: -10, influence: 15, next: 'q8' }
+                ]
+            },
+            q4: {
+                id: 'q4',
+                title: '✍️ 剧本改编',
+                desc: '你找到了一个适配的小说，你会如何改编它：',
+                progress: 30,
+                options: [
+                    { label: '保持原样', cost: 0, influence: 0, next: 'q5' },
+                    { label: '套用短剧爆款模板，快速生产', cost: -15, influence: 10, next: 'q5' },
+                    { label: '进行本地化改编', cost: -20, influence: 20, next: 'q5' }
+                ]
+            },
+            q5: {
+                id: 'q5',
+                title: '🎬 制作方式',
+                desc: '在进行改编的时候，你突然想起还没决定作品的制作方式，你最后决定：',
+                progress: 45,
+                options: [
+                    { label: 'AI生产，高效高产！', cost: -25, influence: 10, next: 'q6' },
+                    { label: '老手艺人还是得手搓', cost: -55, influence: 0, next: 'q6' }
+                ]
+            },
+            q6: {
+                id: 'q6',
+                title: '📺 发布渠道',
+                desc: '现在该找平台签约合作，为后续作品发布做准备了，你会选择……',
+                progress: 60,
+                options: [
+                    { label: 'Animeshorts.ai以及其他短剧平台', cost: -15, influence: 15, next: 'q7' },
+                    { label: 'Netflix全球独家', cost: -35, influence: -5, next: 'q7' },
+                    { label: 'Disney+平台', cost: -40, influence: -10, next: 'q7' }
+                ]
+            },
+            q7: {
+                id: 'q7',
+                title: '🎯 上线最终决策',
+                desc: '恰好赶上戛纳电影节投稿日期，你还有时间对作品进行修改，你最终决定：',
+                progress: 78,
+                options: [
+                    { label: '我就要更艺术的，获奖势在必得', cost: -5, influence: 30, next: null, tag: 'art' },
+                    { label: '还是赚钱重要，咱们再商业一点', cost: -25, influence: 25, next: null, tag: 'commercial' },
+                    { label: '精疲力尽了，就这样吧', cost: 0, influence: -15, next: null, tag: 'tired' }
+                ],
+                isFinal: true,
+                path: 'sci_fi'
+            },
+            q8: {
+                id: 'q8',
+                title: '✍️ 剧本改编',
+                desc: '你找到了一个适配的短剧，你会如何改编它：',
+                progress: 35,
+                options: [
+                    { label: '保持原样', cost: 0, influence: 0, next: 'q9' },
+                    { label: '套用短剧爆款模板，快速生产', cost: -10, influence: 10, next: 'q9' },
+                    { label: '进行本地化改编', cost: -15, influence: 20, next: 'q9' }
+                ]
+            },
+            q9: {
+                id: 'q9',
+                title: '🎭 演员选择',
+                desc: '现在要确定主创演员了，经过层层面试筛选之后，你最终选择：',
+                progress: 50,
+                options: [
+                    { label: '海外本土演员', cost: -5, influence: 30, next: 'q10' },
+                    { label: '国内流量明星', cost: -30, influence: -5, next: 'q10' }
+                ]
+            },
+            q10: {
+                id: 'q10',
+                title: '🎞️ 后期制作',
+                desc: '面对复杂的特效，你感到头大，你选择如何完成：',
+                progress: 60,
+                options: [
+                    { label: '聘请专业特效团队', cost: -15, influence: 15, next: 'q11' },
+                    { label: '聘请普通剪辑团队', cost: -10, influence: 10, next: 'q11' },
+                    { label: '随便剪完交给甲方', cost: -5, influence: 5, next: 'q11' }
+                ]
+            },
+            q11: {
+                id: 'q11',
+                title: '📺 发布渠道',
+                desc: '现在该找平台签约合作，为后续作品发布做准备了，你会选择……',
+                progress: 72,
+                options: [
+                    { label: 'ShortMax短剧平台', cost: -20, influence: 10, next: 'q12' },
+                    { label: 'Netflix全球独家', cost: -30, influence: 15, next: 'q12' },
+                    { label: 'YouTube平台', cost: -20, influence: 10, next: 'q12' }
+                ]
+            },
+            q12: {
+                id: 'q12',
+                title: '🎯 上线最终决策',
+                desc: '你觉得作品质量上应该没什么问题了，在正式上线前，你觉得还需要做……',
+                progress: 85,
+                options: [
+                    { label: '数字化营销（AI智能选词精准锁定受众）', cost: -15, influence: 20, next: null },
+                    { label: '保持原样直接上线', cost: 0, influence: -10, next: null }
+                ],
+                isFinal: true,
+                path: 'urban_adapt'
+            },
+            q13: {
+                id: 'q13',
+                title: '✍️ 剧本修改',
+                desc: '你现在有一个很好的剧本，你需不需要进行本土化调整呢',
+                progress: 20,
+                options: [
+                    { label: '那就结合发行地文化进行一下调整叭', cost: -10, influence: 15, next: 'q14' },
+                    { label: '我要狠狠传播中国文化！', cost: -5, influence: 10, next: 'q14' },
+                    { label: '我不管了！有翻译就行', cost: 0, influence: 5, next: 'q14' }
+                ]
+            },
+            q14: {
+                id: 'q14',
+                title: '🎭 演员选择',
+                desc: '现在要确定主创演员了，经过层层面试筛选之后，你最终选择：',
+                progress: 35,
+                options: [
+                    { label: '海外本土演员和国内演员合作', cost: -15, influence: 20, next: 'q15' },
+                    { label: '海外本土演员', cost: -10, influence: 15, next: 'q18' },
+                    { label: 'AI生成就好啦', cost: -5, influence: 10, next: 'q21' }
+                ]
+            },
+            q15: {
+                id: 'q15',
+                title: '🎬 拍摄制作',
+                desc: '你觉得哪种拍摄方式更适合这部片子呢？',
+                progress: 50,
+                options: [
+                    { label: '粗糙棚拍', cost: -5, influence: 5, next: 'q16' },
+                    { label: '实景拍摄', cost: -15, influence: 15, next: 'q16' },
+                    { label: '豪华置景', cost: -25, influence: 25, next: 'q16' }
+                ]
+            },
+            q16: {
+                id: 'q16',
+                title: '📺 发布渠道',
+                desc: '现在该找平台签约合作，为后续作品发布做准备了，你会选择……',
+                progress: 65,
+                options: [
+                    { label: 'TikTok、YouTube等平台', cost: -15, influence: 10, next: 'q17' },
+                    { label: 'FlickReels平台', cost: -20, influence: 15, next: 'q17' },
+                    { label: '我都要！', cost: -30, influence: 20, next: 'q17' }
+                ]
+            },
+            q17: {
+                id: 'q17',
+                title: '🎯 上线最终决策',
+                desc: '你觉得作品应该没什么问题了，在正式上线前，你觉得还需要做……',
+                progress: 78,
+                options: [
+                    { label: '先发国内试试水吧', cost: -5, influence: 5, next: null },
+                    { label: '短剧+文旅', cost: -10, influence: 15, next: null },
+                    { label: '什么都不做', cost: 0, influence: 0, next: null }
+                ],
+                isFinal: true,
+                path: 'urban_script_a'
+            },
+            q18: {
+                id: 'q18',
+                title: '🎬 拍摄制作',
+                desc: '你觉得哪种拍摄方式更适合这部片子呢？',
+                progress: 50,
+                options: [
+                    { label: '粗糙棚拍', cost: -5, influence: 5, next: 'q19' },
+                    { label: '实景拍摄', cost: -15, influence: 15, next: 'q19' },
+                    { label: '豪华置景', cost: -25, influence: 25, next: 'q19' }
+                ]
+            },
+            q19: {
+                id: 'q19',
+                title: '📺 发布渠道',
+                desc: '现在该找平台签约合作，为后续作品发布做准备了，你会选择……',
+                progress: 65,
+                options: [
+                    { label: 'DramaBox平台', cost: -20, influence: 10, next: 'q20' },
+                    { label: 'Netflix平台', cost: -30, influence: 15, next: 'q20' },
+                    { label: 'YouTube平台', cost: -15, influence: 10, next: 'q20' }
+                ]
+            },
+            q20: {
+                id: 'q20',
+                title: '🎯 上线最终决策',
+                desc: '你觉得作品应该没什么问题了，在正式上线前，你觉得还需要做……',
+                progress: 78,
+                options: [
+                    { label: '多平台切片发布', cost: -10, influence: 15, next: null },
+                    { label: '联系平台进行大力推广', cost: -20, influence: 20, next: null },
+                    { label: '什么都不做，好作品自有人欣赏', cost: 0, influence: -5, next: null }
+                ],
+                isFinal: true,
+                path: 'urban_script_b'
+            },
+            q21: {
+                id: 'q21',
+                title: '📺 发布渠道',
+                desc: '现在该找平台签约合作，为后续作品发布做准备了，你会选择……',
+                progress: 50,
+                options: [
+                    { label: 'DramaWave海外独家', cost: -20, influence: 10, next: 'q22' },
+                    { label: 'Netflix全球独家', cost: -30, influence: 15, next: 'q22' },
+                    { label: 'Disney+平台', cost: -35, influence: 20, next: 'q22' }
+                ]
+            },
+            q22: {
+                id: 'q22',
+                title: '🎯 上线最终决策',
+                desc: '你决定参加戛纳电影节，除此之外你还要做什么',
+                progress: 68,
+                options: [
+                    { label: '多语言翻译', cost: -10, influence: 15, next: null },
+                    { label: '剪辑贴合海外节奏', cost: -15, influence: 20, next: null },
+                    { label: '保持原样直接上线', cost: 0, influence: -5, next: null }
+                ],
+                isFinal: true,
+                path: 'urban_script_c'
+            }
+        };
+
+        // ================================================================
+        //  结局数据 · 所有 \n 已替换为 <br>
+        // ================================================================
+
+        const ENDINGS = {
+            sci_fi_success: {
+                badge: '🏆',
+                title: '成功！',
+                titleClass: 'gold',
+                desc: '经过全流程AI协同制作，你做出了《饿塔（TOWER OF HUNGER）》。作品成功入选第79届戛纳Fantastic Pavilion首届竖屏展映单元，顶尖AI特效刷新了海外观众对短剧的认知，中式科幻内核广受热议，你也凭此成为国际知名科幻短剧出品人，众多海外发行方纷纷联系你洽谈多语言版权合作。',
+                achievement: '高塔开拓者',
+                poster: `
+                    <div style="text-align:center; margin-bottom: 10px;">
+                        <img src="https://free.picui.cn/free/pic/844/20260627/98c52bf944cc4fe3bc6649ecd9a445a0.png" alt="饿塔 TOWER OF HUNGER 电影海报" 
+                             referrerpolicy="no-referrer"
+                             style="max-width: 180px; width: 100%; height: auto; border-radius: 6px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); display: inline-block;" />
+                    </div>
+                `,
+                story: '人类星际飞船意外失事，幸存者坠落至荒芜凶险的异星。这里环境恶劣、异兽横行，物资彻底断绝，绝境之中，幸存众人依靠残破地图，寻得一座神秘的远古通天巨塔。这座高塔拥有特殊力量，能够凭借人的意念具象化物资，凭空生成食物、水源与生存工具，让众人暂时摆脱了饥饿与死亡的威胁。可看似救赎的高塔，实则暗藏致命枷锁，会无限放大人类的贪婪与私欲。安稳的处境快速滋生纷争，幸存者为垄断塔的使用权、抢占资源相互猜忌、背叛、争斗，团队彻底分裂。有人破译古塔秘密，找到了克制欲望、合力建造逃生装置、离开异星的出路。但被贪欲裹挟的众人不愿妥协，执意沉溺于即时的物资满足，亲手断送唯一生机。最终，所有人被困在这座无尽的饿塔之中，在欲望与厮杀的恶性循环里，永久沉沦。',
+                reactions: '<strong>【国际】</strong>入选第79届戛纳Fantastic Pavilion首届竖屏展映单元，全球千余部作品选出21部，是单元仅有的两部中国全AI短剧，实现国产AI短剧首登戛纳官方展区。海外业内认可东方科幻+AI视觉融合效果，多家海外流媒体、短剧发行方洽谈多语言版权，海外技术团队关注其全AI工业化制作管线。<br><br><strong>【国内】</strong>澎湃、杭州新闻联播等媒体集中报道，被业内视作AI短剧精品化标杆，打破大众对AI短剧粗制滥造的固有印象。带动平台加码精品AI科幻短剧扶持，“文学IP+专业影视主创+全AI生产”模式成为行业可复制范本。',
+                significance: '证明了国产全AI生成影视内容达到国际A类电影节展映标准，打破“AI视频仅概念演示”偏见，开创IP文学+资深影视人+全AI工业化短剧生产新模式，为低成本重工业科幻、奇幻短剧提供可复制管线，竖屏短剧首次以AI国产内容形式登陆戛纳，打开东方科幻题材海外传播新路径。',
+                tags: ['硬核科幻', '末世星际求生', '惊悚悬疑']
+            },
+            sci_fi_almost: {
+                badge: '🌟',
+                title: '你就差一步！',
+                titleClass: 'orange',
+                desc: '经过全流程AI协同制作，你做出了《饿塔（TOWER OF HUNGER）》。但是因为你选择向市场妥协，你错失了一个戛纳入围的机会。',
+                achievement: '一步之差',
+                poster: `
+                    <div style="text-align:center; margin-bottom: 10px;">
+                        <img src="https://free.picui.cn/free/pic/844/20260627/98c52bf944cc4fe3bc6649ecd9a445a0.png" alt="饿塔 TOWER OF HUNGER 电影海报" 
+                             referrerpolicy="no-referrer"
+                             style="max-width: 180px; width: 100%; height: auto; border-radius: 6px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); display: inline-block;" />
+                    </div>
+                `,
+                story: '人类星际飞船意外失事，幸存者坠落至荒芜凶险的异星。这里环境恶劣、异兽横行，物资彻底断绝，绝境之中，幸存众人依靠残破地图，寻得一座神秘的远古通天巨塔。这座高塔拥有特殊力量，能够凭借人的意念具象化物资，凭空生成食物、水源与生存工具，让众人暂时摆脱了饥饿与死亡的威胁。可看似救赎的高塔，实则暗藏致命枷锁，会无限放大人类的贪婪与私欲。安稳的处境快速滋生纷争，幸存者为垄断塔的使用权、抢占资源相互猜忌、背叛、争斗，团队彻底分裂。有人破译古塔秘密，找到了克制欲望、合力建造逃生装置、离开异星的出路。但被贪欲裹挟的众人不愿妥协，执意沉溺于即时的物资满足，亲手断送唯一生机。最终，所有人被困在这座无尽的饿塔之中，在欲望与厮杀的恶性循环里，永久沉沦。',
+                reactions: '入选第79届戛纳Fantastic Pavilion首届竖屏展映单元，全球千余部作品选出21部，是单元仅有的两部中国全AI短剧，实现国产AI短剧首登戛纳官方展区。海外业内认可东方科幻+AI视觉融合效果，多家海外流媒体、短剧发行方洽谈多语言版权，海外技术团队关注其全AI工业化制作管线。澎湃、杭州新闻联播等媒体集中报道，被业内视作AI短剧精品化标杆，打破大众对AI短剧粗制滥造的固有印象。带动平台加码精品AI科幻短剧扶持，"文学IP+专业影视主创+全AI生产"模式成为行业可复制范本。',
+                tags: ['硬核科幻', '末世星际求生', '惊悚悬疑']
+            },
+            urban_adapt_success: {
+                badge: '🏆',
+                title: '成功！',
+                titleClass: 'gold',
+                desc: '经过努力最终你做出了《My Farmer Dad is Secretly an Archmage》，这部剧上线11天即在北美、英国、澳大利亚等核心地区实现投放消耗突破177万美金，成为2025年Q4出海短剧赛道的黑马作品。该剧的特效制作水准，改变了部分海外观众对短剧的既有印象，一时间，你风光无量，成为了国际上小有名气的出品人。',
+                achievement: '扮猪吃老虎',
+                poster: `
+                    <div style="text-align:center; margin-bottom: 10px;">
+                        <img src="https://free.picui.cn/free/pic/844/20260627/9feb9d11ce10d896826bedfdbcf79b9b.jpg" alt="My Farmer Dad is Secretly an Archmage 电影海报" 
+                             referrerpolicy="no-referrer"
+                             style="max-width: 180px; width: 100%; height: auto; border-radius: 6px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); display: inline-block;" />
+                    </div>
+                `,
+                story: '剧情改编自短剧《犬父亲定乾坤》，将背景设定在宏大的中世纪魔法年代，故事讲述了一位只想在乡下种田的"普通"农场主父亲，为了守护被魔神分身觊觎的王国，被迫重出江湖，意外暴露了自己曾是"传奇法神"的惊天身份。剧本极其巧妙地设置了"不知情的儿子"这一视角，在儿子与观众间形成强烈反差与滑稽感，编剧团队将东方网文中经典的"扮猪吃虎"爽点，无缝移植到西方魔法世界观中。',
+                market: '上线11天即在北美、英国、澳大利亚等核心地区实现投放消耗突破177万美金，成为2025年Q4出海短剧赛道的黑马作品。IMDb平台评分为7.1/10，在同类型奇幻短剧中属于中等偏上口碑，核心受众认可其"扮猪吃老虎"的反转爽点与电影级特效制作。',
+                region: '主要在欧美短剧受众圈层传播，同时被引进至日本市场（日文译名《農夫だと思った父がオラクルメンターだった件》），当地有专门的剧集解说站点整理剧情与观众评价，是海外奇幻爽感短剧里的代表性作品之一。',
+                tags: ['奇幻']
+            },
+            urban_script_a_success: {
+                badge: '🏆',
+                title: '成功！',
+                titleClass: 'gold',
+                desc: '经过你的努力，你创造出了《少夫人在东北》。这部剧一上线就在东南亚地区爆火，第一季上线首月海外播放量突破30亿。一时间，你的事业蒸蒸日上，成为了世俗意义上的成功人士。在短剧不断卖座的同时你也积极向外宣传着中国文化，受到很多海外观众的追捧。',
+                achievement: '中国文化传播大使',
+                poster: `
+                    <div style="text-align:center; margin-bottom: 10px;">
+                        <img src="https://free.picui.cn/free/pic/844/20260627/4a690399f55ce6a4e4a6099d60f5213b.jpg" alt="少夫人来自东北 电影海报" 
+                             referrerpolicy="no-referrer"
+                             style="max-width: 180px; width: 100%; height: auto; border-radius: 6px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); display: inline-block;" />
+                    </div>
+                `,
+                story: '东北女孩钱小卉因失恋远赴南洋散心，偶遇为躲避家族联姻焦头烂额的马来西亚豪门继承人周赫轩，两人达成百万契约假扮情侣。不同于传统豪门剧的隐忍套路，性格直爽的钱小卉用东北人的热辣性格"整顿"豪门：回怼刁难的亲戚、带动冷清的家庭氛围、把酸菜缸和铁锅炖搬进别墅，用烟火气治愈了压抑的豪门家庭，最终两人假戏真做。',
+                market: '同步登陆YouTube、TikTok、FlickReels等海外平台，核心爆火区域为东南亚的马来西亚、新加坡，是近年中国短剧出海东盟市场的标志性作品。剧集高度还原马来西亚民俗细节（光脚入户、马来拉茶、新春捞鱼生、娘惹传统服饰等），引发当地观众强烈共情，被评价"满是马来西亚烟火气"；马来西亚、新加坡多国主流媒体均对剧集进行了报道。',
+                region: '第一季上线首月海外播放量突破30亿；第二季开播后带动大批马来西亚网友种草东北铁锅炖、早市、洗浴文化，实现了"以剧带游"的文旅引流效果，当地观众集体在线催更第三季，目前第三季预约量已突破300万。',
+                tags: ['现代都市', '豪门']
+            },
+            urban_script_b_success: {
+                badge: '🏆',
+                title: '成功！',
+                titleClass: 'gold',
+                desc: '经过你的努力，你创作出了《Think Again! I\'m the Hidden Boss Mom》，你巧妙地将中国市场百试不爽的"扮猪吃老虎"套路和欧美中层阶级之间的冲突结合起来，制作出了一部本土化极佳的女频打脸爽剧。上线第一个月就挤入热度榜TOP10，一时间各大出品方都纷纷联系到你，希望你能接手下一个S级短剧的制作。从此你靠制作短剧走向人生巅峰，过上了吃喝不愁的日子。',
+                achievement: 'Call me mommy',
+                poster: `
+                    <div style="text-align:center; margin-bottom: 10px;">
+                        <img src="https://free.picui.cn/free/pic/844/20260627/1947bd9921a428dc6ba71205b460e35a.png" alt="Think Again! I'm the Hidden Boss Mom 电影海报" 
+                             referrerpolicy="no-referrer"
+                             style="max-width: 180px; width: 100%; height: auto; border-radius: 6px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); display: inline-block;" />
+                    </div>
+                `,
+                story: '故事围绕妈妈Peggy Whitman展开。主席Ingrid Fischer为首的家长小团体排挤、构陷，其子也在校园中被针对霸凌。但无人知晓的是，Peggy正是这所学校背后的隐形亿万富豪。随着冲突升级，她的真实身份逐步揭晓，此前欺辱她的家长圈层接连遭遇打脸反转。',
+                market: '该剧是DramaBox 2026年5月的S级主推女频作品，上线后稳居平台「Strong Female Lead（强女主）」分类榜单TOP3，在5月全站新剧热度排名中进入前5，属于当月女频赛道的第一梯队项目。参考第三方短剧监测机构ReelPulse的2026年DramaBox Top20剧集榜单，该剧作为5月新上线作品成功进入月度总榜前10，是当期表现最好的家庭向女频爽剧。',
+                region: '海外观众普遍认为PTA圈层斗争的设定新颖且有现实共鸣，将"成人版社交霸凌"作为短剧核心冲突的形式有吸引力，身份揭晓后的打脸反转情节爽感充足，符合竖屏短剧的观看预期。女主与Mason的感情线、自身婚姻困境的设定，被认为提升了剧情的追看性，跳出了单纯复仇爽剧的扁平感。该剧是点众科技在海外女频赛道的常规化产出，验证了"国内爽文逻辑+海外生活化议题"改编模式的可行性，是中国出海短剧从粗放译制转向精细化本地化创作的代表性作品之一。',
+                tags: ['女频爽剧', '家庭']
+            },
+            urban_script_c_pending: {
+                badge: '⏳',
+                title: '有待市场考验',
+                titleClass: 'orange',
+                desc: '经过全流程AI协同制作，你创作出了《亲儿归来妈妈宠上天（My Real Son Comes First）》。你巧妙地将国内成熟的重生逆袭、豪门复仇爽剧逻辑，与普适的母爱救赎主题相结合，打造出适配出海的标准化女频竖屏短剧。目前剧集仍处于市场爬坡阶段，国内上线规划也在同步推进，这套可复制的量产出海模式已获得业内关注，后续增长潜力充足，静待市场进一步发酵。',
+                achievement: '潜力十足',
+                poster: `
+                    <div style="text-align:center; margin-bottom: 10px;">
+                        <img src="https://free.picui.cn/free/pic/844/20260627/8ea2646dbaf46020ee01900108d7603e.png" alt="亲儿归来妈妈宠上天 电影海报" 
+                             referrerpolicy="no-referrer"
+                             style="max-width: 180px; width: 100%; height: auto; border-radius: 6px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); display: inline-block;" />
+                    </div>
+                `,
+                story: '前世，秦胜兰被丈夫朱伟和养子朱浩宇联手蒙蔽，误以为亲生儿子朱海潮品行败坏，将其赶出家门，最终母子二人双双惨死。临死前她才得知真相：朱浩宇是丈夫的私生子，多年来一直在谋夺朱家财产，自己亲手亏欠、害死了亲生骨肉。带着无尽悔恨，秦胜兰重生回到三年前——正是她准备宣布朱浩宇为家族继承人的前一天。这一世她幡然醒悟，全力找回、弥补朱海潮，一步步揭穿朱浩宇的伪善面目和丈夫的阴谋，夺回财产掌控权。过程中，曾受秦家恩惠的富豪陆淮出手相助，为女主母子保驾护航。最终，朱伟、朱浩宇的阴谋彻底败露，朱氏集团破产，恶人自食恶果；秦胜兰将全部家产交由亲生子朱海潮继承，彻底脱离朱家，母子二人开启全新人生。',
+                market: '精准命中30岁以上女性短剧核心受众，"弥补亲儿、手撕白眼狼养子"的情绪点共情性强，上线后快速进入女频短剧热度梯队。作为标准化女频爽剧，海外译制版上线后数据平稳，是国产AI短剧出海的常规走量作品，验证了亲情复仇类题材的海外接受度。因同赛道作品密集，该剧属于流水线精品化作品，未出现破圈级传播，热度集中在短剧垂直受众内，暂无全网破亿播放的爆款表现。',
+                significance: '验证了AIGC技术对女频短剧量产的赋能价值：经典题材可通过AI管线快速落地、同步出海，大幅降低试错成本，是短剧工业化量产的典型样本。补充了国产短剧出海的题材品类：证明"重生亲情+豪门复仇"这类本土化女频题材，经过标准化加工后可适配海外市场，拓宽了国产短剧出海的内容边界。推动短剧内容分层：代表了当前短剧市场"大众走量款"的成熟制作范式，与《饿塔》这类标杆级精品AI短剧形成互补，共同完善AI短剧的内容梯队。',
+                tags: ['重生逆袭', '亲情救赎', '豪门复仇']
+            },
+            bankrupt: {
+                badge: '💸',
+                title: '公司破产了',
+                titleClass: 'red',
+                desc: '纵使你没日没夜的投身于短剧的制作，精打细算的使用每一笔钱，最终还是因为缺少经验，既不懂运营也不懂该如何进行出海，最终导致破产了。虽然心有不甘，但看着自己空空如也的口袋和马上就要交的房租，你还是决定老老实实的找个班上吧。',
+                achievement: '大梦一场',
+                govTitle: '📜 浙江省微短剧出海综合服务平台',
+                govContent: '截至去年，浙江省微短剧平台出海收入超4亿美元，越来越多的人选择投身到短剧出海的行业中来。但由于文化差异、行业鸿沟等问题，许多盲目入坑短剧出海行业的人最后大败而归。<br>中文在线后续将资源向新平台FlareFlow转移，但整体海外短剧业务仍处巨额亏损，2025年公司归母净利润预亏5.8亿——7亿元，亏损主因正是海外短剧的高额推广投入。<br>此外，合规问题和文化差异也是许多短剧出海失败的重要原因。2026年5月，8名中国短剧从业者在泰国清迈被捕，成为短剧出海合规风险的标志性事件。该团队持旅游签证入境，未办理工作许可与拍摄审批，租用民宅私自搭建片场进行商业拍摄，被泰国旅游警察当场查获。大量国内短剧团队曾扎堆赴美做本土拍摄，试图突破华人圈层，但多数以亏损撤场告终。国内短剧常见的壁咚、掌掴、下跪，乃至极端狗血剧情，遭到美国演员普遍抵触，大量桥段无法落地拍摄。<br>为了解决这些问题，为更多的短剧出海提供保障，浙江省微短剧出海综合服务平台于今年6月落户钱塘，整合政府部门、行业协会、金融机构、律所智库、高校院所等多元资源，打造一站式出海服务体系，为短剧出海保驾护航。'
+            },
+            flop: {
+                badge: '🌊',
+                title: '没有激起任何水花',
+                titleClass: 'gray',
+                desc: '经过你的努力最终也作出了一部看起来像模像样的短剧，但因为种种原因最终在海外反向平平，收入也仅仅是够温饱而已。为了赚钱你又匆匆投入到了下一步短剧的制作中来。',
+                achievement: '莫比乌斯',
+                govTitle: '📊 短剧出海现状',
+                govContent: '2025年全年预计出海短剧5500部，但每10部出海短剧里，仅有1-2部能实现盈亏平衡或盈利，剩下8-9部都会在市场中被淹没，无法收回成本。以YouTube渠道为例，26.8%的频道已停更超过6个月，对应内容团队彻底退出市场，旗下所有短剧内容停止运营；91%的频道属于低流量，单条视频平均播放量不足万次，几乎没有付费转化与广告变现能力，内容上线后即石沉大海。'
+            }
+        };
+
+        // ================================================================
+        //  游戏状态
+        // ================================================================
+
+        let state = {
+            phase: 'welcome',
+            currentQuestion: null,
+            money: 100,
+            influence: 0,
+            choices: {},
+            companyName: '',
+            path: null,
+            isEnding: false,
+            expandOpen: {},
+            q7_choice: null
+        };
+
+        // ================================================================
+        //  DOM REFS
+        // ================================================================
+
+        const $ = id => document.getElementById(id);
+        const moneyDisplay = $('moneyDisplay');
+        const influenceDisplay = $('influenceDisplay');
+        const phaseLabel = $('phaseLabel');
+        const progressFill = $('progressFill');
+        const gameContent = $('gameContent');
+        const cardScroll = $('cardScroll');
+        const filmFrame = $('filmFrame');
+        const filmSliderTop = $('filmSliderTop');
+        const filmSliderBottom = $('filmSliderBottom');
+
+        // ================================================================
+        //  边框动画
+        // ================================================================
+
+        function triggerSlide() {
+            filmSliderTop.style.animation = 'none';
+            filmSliderBottom.style.animation = 'none';
+            void filmSliderTop.offsetWidth;
+            filmSliderTop.style.animation = 'filmSlide 0.6s ease-in-out forwards';
+            filmSliderBottom.style.animation = 'filmSlide 0.6s ease-in-out forwards';
+            setTimeout(() => {
+                filmSliderTop.style.animation = '';
+                filmSliderBottom.style.animation = '';
+            }, 650);
+        }
+
+        // ================================================================
+        //  更新状态栏和进度条
+        // ================================================================
+
+        function updateUI() {
+            moneyDisplay.textContent = state.money;
+            influenceDisplay.textContent = state.influence;
+
+            let progress = 0;
+            if (state.phase === 'welcome') {
+                progress = 0;
+                phaseLabel.textContent = '欢迎';
+            } else if (state.phase === 'q_name') {
+                progress = 3;
+                phaseLabel.textContent = '起名';
+            } else if (state.phase === 'question' && state.currentQuestion) {
+                const q = QUESTIONS[state.currentQuestion];
+                progress = q.progress || 50;
+                const labels = {
+                    'q2': '选题材', 'q3': '剧本选择', 'q4': '剧本改编',
+                    'q5': '制作方式', 'q6': '发布渠道', 'q7': '最终决策',
+                    'q8': '剧本改编', 'q9': '演员选择', 'q10': '后期制作',
+                    'q11': '发布渠道', 'q12': '最终决策',
+                    'q13': '剧本修改', 'q14': '演员选择',
+                    'q15': '拍摄制作', 'q16': '发布渠道', 'q17': '最终决策',
+                    'q18': '拍摄制作', 'q19': '发布渠道', 'q20': '最终决策',
+                    'q21': '发布渠道', 'q22': '最终决策'
+                };
+                phaseLabel.textContent = labels[state.currentQuestion] || '决策';
+            } else if (state.phase === 'ending') {
+                progress = 100;
+                phaseLabel.textContent = '结局';
+            }
+            progressFill.style.width = Math.min(progress, 100) + '%';
+        }
+
+        // ================================================================
+        //  渲染函数
+        // ================================================================
+
+        function render() {
+            updateUI();
+
+            if (state.phase === 'ending') {
+                cardScroll.classList.add('ending-scroll');
+            } else {
+                cardScroll.classList.remove('ending-scroll');
+            }
+
+            if (state.phase === 'welcome') renderWelcome();
+            else if (state.phase === 'q_name') renderNameStage();
+            else if (state.phase === 'question') renderQuestion();
+            else if (state.phase === 'ending') renderEnding();
+
+            if (state.phase !== 'ending') {
+                cardScroll.scrollTop = 0;
+            }
+            setTimeout(generateHoles, 50);
+        }
+
+        // ---- 欢迎 ----
+        function renderWelcome() {
+            gameContent.innerHTML = `
+                <div class="start-screen fade-in">
+                    <div class="logo">🎞️</div>
+                    <h1>重生之我要靠做短剧走上人生巅峰</h1>
+                    <p class="sub">
+                        你即将开启一段海外影视制作的冒险之旅。<br />
+                        每一个决定都将影响作品的命运，请谨慎选择！
+                    </p>
+                    <div class="guide-box">
+                        💡 <span class="key">资金</span> 决定生存，<span class="key">影响力</span> 决定成败。<br>
+                        在有限的预算内，打造最具影响力的作品！
+                    </div>
+                    <button class="btn-primary" id="btnStart">🎬 开始制作</button>
+                </div>
+            `;
+            $('btnStart')?.addEventListener('click', () => {
+                state.phase = 'q_name';
+                triggerSlide();
+                render();
+            });
+        }
+
+        // ---- 起名 ----
+        function renderNameStage() {
+            const currentName = state.companyName || '';
+            gameContent.innerHTML = `
+                <div class="start-screen fade-in">
+                    <div class="logo">🏢</div>
+                    <h1 style="font-size:1.4rem;">为公司起名</h1>
+                    <p class="sub">你的影视公司需要一个响亮的名字，<br />它将伴随你征战海外市场！</p>
+                    <div class="guide-box" style="padding:12px 20px;">
+                        <div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:6px;">
+                            你的公司名称：
+                        </div>
+                        <div class="company-name-display" id="nameDisplay">
+                            ${currentName || '尚未命名'}
+                        </div>
+                    </div>
+                    <div class="name-input-wrap">
+                        <div class="input-group">
+                            <input type="text" id="companyNameInput" 
+                                   placeholder="输入公司名称（最多12字）" 
+                                   maxlength="12"
+                                   value="${currentName}"
+                                   autofocus>
+                            <span class="char-count" id="charCount">${currentName.length}/12</span>
+                        </div>
+                        <button class="btn-primary" id="btnConfirmName" ${currentName.length < 2 ? 'disabled' : ''}>
+                            ✅ 确认命名
+                        </button>
+                        <div style="font-size:0.7rem;color:var(--text-muted);margin-top:4px;">
+                            💡 至少输入2个字符
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const input = document.getElementById('companyNameInput');
+            const charCount = document.getElementById('charCount');
+            const confirmBtn = document.getElementById('btnConfirmName');
+            const nameDisplay = document.getElementById('nameDisplay');
+
+            input.addEventListener('input', function() {
+                const val = this.value.trim();
+                const len = val.length;
+                charCount.textContent = `${len}/12`;
+                if (len > 10) charCount.classList.add('over');
+                else charCount.classList.remove('over');
+                if (nameDisplay) nameDisplay.textContent = val || '尚未命名';
+                if (confirmBtn) confirmBtn.disabled = len < 2;
+                state.companyName = val;
+            });
+
+            confirmBtn?.addEventListener('click', function() {
+                const val = input.value.trim();
+                if (val.length >= 2) {
+                    state.companyName = val;
+                    state.phase = 'question';
+                    state.currentQuestion = 'q2';
+                    triggerSlide();
+                    render();
+                }
+            });
+
+            input?.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    const val = this.value.trim();
+                    if (val.length >= 2) {
+                        state.companyName = val;
+                        state.phase = 'question';
+                        state.currentQuestion = 'q2';
+                        triggerSlide();
+                        render();
+                    }
+                }
+            });
+
+            setTimeout(() => { if (input) input.focus(); }, 100);
+        }
+
+        // ---- 渲染题目 ----
+        function renderQuestion() {
+            const q = QUESTIONS[state.currentQuestion];
+            if (!q) return;
+
+            const companyDisplay = state.companyName ?
+                `<span style="color:var(--gold);font-weight:600;">「${state.companyName}」</span>` :
+                '你的公司';
+
+            let html = `
+                <div class="narrative fade-in">
+                    <div class="phase-title">${q.title}</div>
+                    <div class="phase-desc">${q.desc.replace(/团队/g, companyDisplay + '团队')}</div>
+                </div>
+                <div class="options stagger">
+            `;
+
+            q.options.forEach((opt, idx) => {
+                const costStr = opt.cost < 0 ? `-${Math.abs(opt.cost)}` : `${opt.cost}`;
+                const infStr = opt.influence >= 0 ? `+${opt.influence}` : `${opt.influence}`;
+                const costColor = opt.cost < 0 ? 'cost' : 'cost gold';
+                html += `
+                    <button class="option-btn" data-optidx="${idx}" style="animation-delay:${idx*0.05}s">
+                        <span class="opt-icon">${['A','B','C','D'][idx] || '▸'}</span>
+                        <span class="opt-label">${opt.label}</span>
+                        <span class="opt-meta">
+                            <span class="${costColor}">💰 ${costStr}</span>
+                            <span class="gain">📈 ${infStr}</span>
+                        </span>
+                    </button>
+                `;
+                if (idx < q.options.length - 1) {
+                    html += `<div class="option-divider"></div>`;
+                }
+            });
+
+            html += `</div>`;
+            gameContent.innerHTML = html;
+
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const idx = parseInt(this.dataset.optidx);
+                    handleChoice(idx);
+                });
+            });
+        }
+
+        // ---- 处理选择 ----
+        function handleChoice(optIdx) {
+            const q = QUESTIONS[state.currentQuestion];
+            if (!q || !q.options) return;
+            const opt = q.options[optIdx];
+            if (!opt) return;
+
+            state.money += opt.cost;
+            state.influence += opt.influence;
+
+            if (state.money <= 0) {
+                state.money = 0;
+                state.phase = 'ending';
+                state.isEnding = true;
+                triggerSlide();
+                render();
+                return;
+            }
+
+            state.choices[state.currentQuestion] = optIdx;
+
+            if (opt.next) {
+                state.currentQuestion = opt.next;
+                triggerSlide();
+                render();
+            } else {
+                state.phase = 'ending';
+                state.isEnding = true;
+                if (q.path) state.path = q.path;
+                if (q.id === 'q7' && opt.tag) {
+                    state.q7_choice = opt.tag;
+                }
+                triggerSlide();
+                render();
+            }
+        }
+
+        // ---- 结局判定 ----
+        function getEnding() {
+            const m = state.money;
+            const inf = state.influence;
+
+            if (m <= 0) {
+                return { key: 'bankrupt', data: ENDINGS.bankrupt };
+            }
+
+            if (inf < 80) {
+                if (state.path === 'urban_script_c') {
+                    return { key: 'urban_script_c_pending', data: ENDINGS.urban_script_c_pending };
+                }
+                return { key: 'flop', data: ENDINGS.flop };
+            }
+
+            switch (state.path) {
+                case 'sci_fi':
+                    if (state.q7_choice === 'art') {
+                        return { key: 'sci_fi_success', data: ENDINGS.sci_fi_success };
+                    } else {
+                        return { key: 'sci_fi_almost', data: ENDINGS.sci_fi_almost };
+                    }
+                case 'urban_adapt':
+                    return { key: 'urban_adapt_success', data: ENDINGS.urban_adapt_success };
+                case 'urban_script_a':
+                    return { key: 'urban_script_a_success', data: ENDINGS.urban_script_a_success };
+                case 'urban_script_b':
+                    return { key: 'urban_script_b_success', data: ENDINGS.urban_script_b_success };
+                case 'urban_script_c':
+                    return { key: 'urban_script_c_pending', data: ENDINGS.urban_script_c_pending };
+                default:
+                    return { key: 'flop', data: ENDINGS.flop };
+            }
+        }
+
+        // ---- 构建可展开卡片 ----
+        function buildExpandableCard(key, title, bodyContent, isOpen) {
+            const openClass = isOpen ? 'open' : '';
+            const toggleText = isOpen ? '收起 ▲' : '展开 ▼';
+            return `
+                <div class="expandable-card" data-key="${key}">
+                    <div class="card-header">
+                        <span class="title">${title}</span>
+                        <span class="toggle">${toggleText}</span>
+                    </div>
+                    <div class="card-body ${openClass}">${bodyContent}</div>
+                    <div class="click-hint">💡 点击展开/收起详情</div>
+                </div>
+            `;
+        }
+
+        // ---- 渲染结局 ----
+        function renderEnding() {
+            const result = getEnding();
+            const end = result.data;
+            const m = state.money;
+            const inf = state.influence;
+            const companyName = state.companyName || '你的公司';
+
+            let desc = end.desc.replace(/你的公司/g, companyName);
+            let title = end.title.replace(/你的公司/g, companyName);
+
+            let html = `
+                <div class="ending-screen fade-in">
+                    <div class="ending-badge">${end.badge}</div>
+                    <div class="ending-title ${end.titleClass || 'gold'}">${title}</div>
+                    <div class="ending-desc">${desc}</div>
+                    <div class="ending-stats">
+                        <div class="stat"><div class="num gold">${m}</div><div class="lbl">剩余资金</div></div>
+                        <div class="stat"><div class="num blue">${inf}</div><div class="lbl">影响力</div></div>
+                    </div>
+            `;
+
+            if (end.achievement) {
+                html += `
+                    <div class="ending-card">
+                        <div class="ending-card-header">🏅 成就：${end.achievement}</div>
+                    </div>
+                `;
+            }
+
+            if (end.story) {
+                let storyContent = end.story;
+                let tagsHtml = '';
+                if (end.tags && end.tags.length > 0) {
+                    tagsHtml = `<div class="tag-group">${end.tags.map(t => `<span class="tag">#${t}</span>`).join('')}</div>`;
+                }
+                if (end.poster) {
+                    storyContent = end.poster + storyContent;
+                }
+                const finalContent = storyContent + tagsHtml;
+                const isStoryOpen = state.expandOpen['story'] || false;
+                html += buildExpandableCard('story', '📖 剧情简介', finalContent, isStoryOpen);
+            }
+
+            let marketContent = '';
+            if (end.reactions) {
+                marketContent += end.reactions;
+                if (end.significance) {
+                    marketContent += `<br><br><strong style="color:var(--gold);">行业意义：</strong>${end.significance}`;
+                }
+                if (end.region) {
+                    marketContent += `<br><br><strong style="color:var(--gold);">传播区域：</strong>${end.region}`;
+                }
+            } else if (end.market) {
+                marketContent += end.market;
+                if (end.region) {
+                    marketContent += `<br><br><strong style="color:var(--gold);">传播区域：</strong>${end.region}`;
+                }
+            }
+            if (marketContent) {
+                const isMarketOpen = state.expandOpen['market'] || false;
+                html += buildExpandableCard('market', '📊 市场反响', marketContent, isMarketOpen);
+            }
+
+            if (end.govTitle && end.govContent) {
+                const isGovOpen = state.expandOpen['gov'] || false;
+                html += buildExpandableCard('gov', end.govTitle, end.govContent, isGovOpen);
+            }
+
+            html += `
+                <button class="btn-restart" id="btnRestart">🔄 重新制作</button>
+            `;
+            html += `</div>`;
+
+            gameContent.innerHTML = html;
+
+            document.querySelectorAll('.expandable-card').forEach(card => {
+                const key = card.dataset.key;
+                const toggle = card.querySelector('.toggle');
+                const body = card.querySelector('.card-body');
+                if (!toggle || !body) return;
+
+                const isOpen = state.expandOpen[key] || false;
+                if (isOpen) {
+                    body.classList.add('open');
+                    toggle.textContent = '收起 ▲';
+                }
+
+                const toggleFn = (e) => {
+                    state.expandOpen[key] = !state.expandOpen[key];
+                    if (state.expandOpen[key]) {
+                        body.classList.add('open');
+                        toggle.textContent = '收起 ▲';
+                    } else {
+                        body.classList.remove('open');
+                        toggle.textContent = '展开 ▼';
+                    }
+                };
+
+                card.addEventListener('click', toggleFn);
+                toggle.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleFn(e);
+                });
+            });
+
+            $('btnRestart')?.addEventListener('click', resetGame);
+
+            setTimeout(() => {
+                if (cardScroll) cardScroll.scrollTop = 0;
+            }, 50);
+        }
+
+        // ---- 重置 ----
+        function resetGame() {
+            state = {
+                phase: 'welcome',
+                currentQuestion: null,
+                money: 100,
+                influence: 0,
+                choices: {},
+                companyName: '',
+                path: null,
+                isEnding: false,
+                expandOpen: {},
+                q7_choice: null
+            };
+            render();
+        }
+
+        // ================================================================
+        //  启动
+        // ================================================================
+
+        generateHoles();
+        render();
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && state.phase === 'welcome') {
+                const btn = $('btnStart');
+                if (btn) btn.click();
+            }
+            if (state.phase === 'question') {
+                const idx = parseInt(e.key) - 1;
+                if (idx >= 0) {
+                    const btns = document.querySelectorAll('.option-btn');
+                    if (btns[idx]) btns[idx].click();
+                }
+            }
+        });
+
+        console.log('🎞️ 游戏已加载，所有结局中的换行已替换为<br>');
+    </script>
+
+</body>
+</html>
